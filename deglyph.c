@@ -3,8 +3,8 @@
 #include <string.h>
 
 int main(int argc, char** argv) {
-    if (argc != 2) {
-        printf("Usage: deglyph [STRING]...\n");
+    if (argc <= 1) {
+        fprintf("Usage: deglyph [STRING]...\n");
         return 1;
     }
     
@@ -17,14 +17,24 @@ int main(int argc, char** argv) {
         
         while ((word_token = strsep(&input_str, " ")) != NULL) {
             while ((num_token = strsep(&word_token, ",")) != NULL) {
-                decrypt_str[decrypt_index++] = (char) atoi(num_token) + 64;
+                char* end;
+                long val = strtol(num_token, &end, 10);
+                if (*end != '\0' || end == num_token) {
+                    fprintf(stderr, "Invalid token: %s\n", num_token);
+                    free(decrypt_str);
+                    return 1;
+                }
+                decrypt_str[decrypt_index++] = (char)(val + 64);
             }
             decrypt_str[decrypt_index++] = ' ';
         }
         decrypt_str[--decrypt_index] = '\0'; //Overwrites the last space
-        
+
         printf("%s\n", decrypt_str);
+        free(decrypt_str);
     }
+    
+    return 0;
 }
 
 
